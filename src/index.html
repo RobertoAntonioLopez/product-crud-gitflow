@@ -2,54 +2,58 @@
 <html lang="es">
 <head>
   <meta charset="UTF-8" />
-  <title>Product CRUD</title>
+  <title>Gestor de Productos</title>
   <link rel="stylesheet" href="styles.css" />
 </head>
 <body>
   <h1>Gestor de Productos</h1>
 
-  <section id="form-section">
-    <h2>Crear / Editar Producto</h2>
-    <form id="product-form">
-      <input type="hidden" id="product-id" />
+  <div class="main-container">
+    <section id="form-section" class="card">
+      <h2>Crear / Editar Producto</h2>
+      <form id="product-form">
+        <input type="hidden" id="product-id" />
 
-      <label>
-        Nombre:
-        <input type="text" id="product-name" required />
-      </label>
+        <label>
+          Nombre del producto
+          <input type="text" id="product-name" placeholder="Ej: Laptop Lenovo" required />
+        </label>
 
-      <label>
-        Precio:
-        <input type="number" id="product-price" step="0.01" required />
-      </label>
+        <label>
+          Precio
+          <input type="number" id="product-price" step="0.01" placeholder="Ej: 25000" required />
+        </label>
 
-      <label>
-        Descripción:
-        <textarea id="product-description"></textarea>
-      </label>
+        <label>
+          Descripción
+          <textarea id="product-description" placeholder="Ej: Laptop de 15'', 16 GB RAM, SSD 512 GB"></textarea>
+        </label>
 
-      <button type="submit">Guardar</button>
-      <button type="button" id="reset-btn">Limpiar</button>
-    </form>
-  </section>
+        <div style="display: flex; gap: 10px; margin-top: 10px;">
+          <button type="submit">Guardar</button>
+          <button type="button" id="reset-btn">Limpiar</button>
+        </div>
+      </form>
+    </section>
 
-  <section id="list-section">
-    <h2>Listado de Productos</h2>
-    <table id="products-table">
-      <thead>
-        <tr>
-          <th>ID</th>
-          <th>Nombre</th>
-          <th>Precio</th>
-          <th>Descripción</th>
-          <th>Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <!-- Filas generadas por JS -->
-      </tbody>
-    </table>
-  </section>
+    <section id="list-section" class="card">
+      <h2>Listado de Productos</h2>
+      <table id="products-table">
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Precio</th>
+            <th>Descripción</th>
+            <th>Acciones</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Filas generadas por JavaScript -->
+        </tbody>
+      </table>
+    </section>
+  </div>
 
   <script src="app.js"></script>
 </body>
