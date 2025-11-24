@@ -1,5 +1,10 @@
 // Sistema CRUD de Productos
-// Rama: feature/create-product
+// Funcionalidad actual:
+// - Crear productos
+// - Listar productos
+// - Editar productos
+// - Eliminar productos
+// - Mostrar mensaje cuando no hay productos
 
 document.addEventListener("DOMContentLoaded", () => {
   let products = [];
@@ -16,6 +21,12 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Error: No se encontraron uno o más elementos del DOM. Revisa los IDs en index.html");
     return;
   }
+
+  const emptyMessage = document.createElement("p");
+  emptyMessage.textContent = "No hay productos registrados.";
+  emptyMessage.style.color = "#666";
+  emptyMessage.style.marginTop = "10px";
+  emptyMessage.id = "empty-msg";
 
   // Manejar submit del formulario (crear o editar producto)
   form.addEventListener("submit", (e) => {
@@ -53,9 +64,21 @@ document.addEventListener("DOMContentLoaded", () => {
     form.reset();
   });
 
-  // Función para renderizar la tabla
+  // Renderizar tabla
   function renderProducts() {
     tableBody.innerHTML = "";
+
+    if (products.length === 0) {
+      // Mostrar mensaje de "sin productos"
+      if (!document.getElementById("empty-msg")) {
+        tableBody.parentElement.appendChild(emptyMessage);
+      }
+      return;
+    }
+
+    // Si ya hay productos, quitar el mensaje vacío si existe
+    const existingMsg = document.getElementById("empty-msg");
+    if (existingMsg) existingMsg.remove();
 
     products.forEach((product) => {
       const row = document.createElement("tr");
@@ -96,6 +119,9 @@ document.addEventListener("DOMContentLoaded", () => {
     editingId = null;
     form.reset();
   });
+
+  // Render inicial (para que muestre el mensaje "No hay productos" al cargar)
+  renderProducts();
 
   console.log("Product CRUD inicializado correctamente.");
 });
