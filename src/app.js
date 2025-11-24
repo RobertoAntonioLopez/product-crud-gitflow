@@ -2,7 +2,7 @@
 // Funcionalidad actual:
 // - Crear productos
 // - Listar productos
-// - Editar productos
+// - Editar productos (con indicador visual de modo edición)
 // - Eliminar productos
 // - Mostrar mensaje cuando no hay productos
 
@@ -21,6 +21,18 @@ document.addEventListener("DOMContentLoaded", () => {
     console.error("Error: No se encontraron uno o más elementos del DOM. Revisa los IDs en index.html");
     return;
   }
+
+  const submitBtn = form.querySelector("button[type='submit']");
+  if (!submitBtn) {
+    console.error("Error: No se encontró el botón de submit dentro del formulario.");
+    return;
+  }
+
+  // Estilos iniciales del botón de guardar
+  submitBtn.textContent = "Guardar";
+  submitBtn.style.background = "#3a87ff";
+  submitBtn.style.color = "#fff";
+  submitBtn.style.border = "none";
 
   const emptyMessage = document.createElement("p");
   emptyMessage.textContent = "No hay productos registrados.";
@@ -60,6 +72,13 @@ document.addEventListener("DOMContentLoaded", () => {
       products.push(newProduct);
     }
 
+    // Volver a modo "crear" después de guardar
+    submitBtn.textContent = "Guardar";
+    submitBtn.style.background = "#3a87ff";
+
+    const editBanner = document.getElementById("edit-banner");
+    if (editBanner) editBanner.remove();
+
     renderProducts();
     form.reset();
   });
@@ -98,26 +117,51 @@ document.addEventListener("DOMContentLoaded", () => {
     });
   }
 
-  // Hacer accesibles las funciones de editar y eliminar en el ámbito global
+  // Función global para editar producto (modo edición mejorado)
   window.editProduct = (id) => {
     const product = products.find((p) => p.id === id);
     if (!product) return;
 
     editingId = id;
+
     nameInput.value = product.name;
     priceInput.value = product.price;
     descriptionInput.value = product.description;
+
+    // ---- Mejoras para modo edición ----
+    submitBtn.textContent = "Actualizar producto";
+    submitBtn.style.background = "#ffaa00";
+
+    // Crear mensaje visual arriba del formulario
+    let editBanner = document.getElementById("edit-banner");
+    if (!editBanner) {
+      editBanner = document.createElement("p");
+      editBanner.id = "edit-banner";
+      editBanner.textContent = "Modo edición: estás actualizando un producto.";
+      editBanner.style.color = "#ff8800";
+      editBanner.style.fontWeight = "bold";
+      editBanner.style.marginBottom = "10px";
+      form.parentElement.insertBefore(editBanner, form);
+    }
   };
 
+  // Función global para eliminar producto
   window.deleteProduct = (id) => {
     products = products.filter((p) => p.id !== id);
     renderProducts();
   };
 
-  // Botón de limpiar
+  // Botón de limpiar / cancelar edición
   resetBtn.addEventListener("click", () => {
     editingId = null;
     form.reset();
+
+    // Volver a modo normal
+    submitBtn.textContent = "Guardar";
+    submitBtn.style.background = "#3a87ff";
+
+    const editBanner = document.getElementById("edit-banner");
+    if (editBanner) editBanner.remove();
   });
 
   // Render inicial (para que muestre el mensaje "No hay productos" al cargar)
