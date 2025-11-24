@@ -1,10 +1,10 @@
 // Sistema CRUD de Productos
-// Funcionalidad actual:
+// Funcionalidad:
 // - Crear productos
 // - Listar productos
-// - Editar productos (con indicador visual de modo edición)
-// - Eliminar productos
-// - Mostrar mensaje cuando no hay productos
+// - Editar productos (con indicador visual)
+// - Eliminar productos (con confirmación, animación y mensaje)
+// - Mensaje cuando no hay productos
 
 document.addEventListener("DOMContentLoaded", () => {
   let products = [];
@@ -18,17 +18,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const tableBody = document.querySelector("#products-table tbody");
 
   if (!form || !nameInput || !priceInput || !descriptionInput || !resetBtn || !tableBody) {
-    console.error("Error: No se encontraron uno o más elementos del DOM. Revisa los IDs en index.html");
+    console.error("Error: No se encontraron elementos del DOM.");
     return;
   }
 
   const submitBtn = form.querySelector("button[type='submit']");
-  if (!submitBtn) {
-    console.error("Error: No se encontró el botón de submit dentro del formulario.");
-    return;
-  }
 
-  // Estilos iniciales del botón de guardar
   submitBtn.textContent = "Guardar";
   submitBtn.style.background = "#3a87ff";
   submitBtn.style.color = "#fff";
@@ -40,7 +35,7 @@ document.addEventListener("DOMContentLoaded", () => {
   emptyMessage.style.marginTop = "10px";
   emptyMessage.id = "empty-msg";
 
-  // Manejar submit del formulario (crear o editar producto)
+  // Manejar submit del formulario
   form.addEventListener("submit", (e) => {
     e.preventDefault();
 
@@ -49,7 +44,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const description = descriptionInput.value.trim();
 
     if (!name || isNaN(price)) {
-      alert("Nombre y precio son obligatorios y el precio debe ser un número válido.");
+      alert("Nombre y precio son obligatorios.");
       return;
     }
 
@@ -61,41 +56,29 @@ document.addEventListener("DOMContentLoaded", () => {
     };
 
     if (editingId) {
-      // Actualizar producto existente
       const index = products.findIndex((p) => p.id === editingId);
-      if (index !== -1) {
-        products[index] = newProduct;
-      }
+      if (index !== -1) products[index] = newProduct;
       editingId = null;
     } else {
-      // Crear producto nuevo
       products.push(newProduct);
     }
 
-    // Volver a modo "crear" después de guardar
-    submitBtn.textContent = "Guardar";
-    submitBtn.style.background = "#3a87ff";
-
-    const editBanner = document.getElementById("edit-banner");
-    if (editBanner) editBanner.remove();
-
+    // Modo guardar
+    resetEditMode();
     renderProducts();
     form.reset();
   });
 
-  // Renderizar tabla
   function renderProducts() {
     tableBody.innerHTML = "";
 
     if (products.length === 0) {
-      // Mostrar mensaje de "sin productos"
       if (!document.getElementById("empty-msg")) {
         tableBody.parentElement.appendChild(emptyMessage);
       }
       return;
     }
 
-    // Si ya hay productos, quitar el mensaje vacío si existe
     const existingMsg = document.getElementById("empty-msg");
     if (existingMsg) existingMsg.remove();
 
@@ -109,15 +92,24 @@ document.addEventListener("DOMContentLoaded", () => {
         <td>${product.description}</td>
         <td>
           <button onclick="editProduct(${product.id})">Editar</button>
-          <button onclick="deleteProduct(${product.id})">Eliminar</button>
+          <button class="delete-btn" onclick="deleteProduct(${product.id})">Eliminar</button>
         </td>
       `;
 
       tableBody.appendChild(row);
     });
+
+    // Estilizar botón eliminar
+    document.querySelectorAll(".delete-btn").forEach((btn) => {
+      btn.style.background = "#ff4444";
+      btn.style.color = "#fff";
+      btn.style.border = "none";
+      btn.style.padding = "5px 10px";
+      btn.style.cursor = "pointer";
+    });
   }
 
-  // Función global para editar producto (modo edición mejorado)
+  // Modo edición
   window.editProduct = (id) => {
     const product = products.find((p) => p.id === id);
     if (!product) return;
@@ -128,16 +120,14 @@ document.addEventListener("DOMContentLoaded", () => {
     priceInput.value = product.price;
     descriptionInput.value = product.description;
 
-    // ---- Mejoras para modo edición ----
     submitBtn.textContent = "Actualizar producto";
     submitBtn.style.background = "#ffaa00";
 
-    // Crear mensaje visual arriba del formulario
     let editBanner = document.getElementById("edit-banner");
     if (!editBanner) {
       editBanner = document.createElement("p");
       editBanner.id = "edit-banner";
-      editBanner.textContent = "Modo edición: estás actualizando un producto.";
+      editBanner.textContent = "Modo edición: actualizando producto...";
       editBanner.style.color = "#ff8800";
       editBanner.style.fontWeight = "bold";
       editBanner.style.marginBottom = "10px";
@@ -145,27 +135,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   };
 
-  // Función global para eliminar producto
-  window.deleteProduct = (id) => {
-    products = products.filter((p) => p.id !== id);
-    renderProducts();
-  };
-
-  // Botón de limpiar / cancelar edición
-  resetBtn.addEventListener("click", () => {
+  function resetEditMode() {
     editingId = null;
-    form.reset();
-
-    // Volver a modo normal
     submitBtn.textContent = "Guardar";
     submitBtn.style.background = "#3a87ff";
 
-    const editBanner = document.getElementById("edit-banner");
-    if (editBanner) editBanner.remove();
+    const banner = document.getElementById("edit-banner");
+    if (banner) banner.remove();
+  }
+
+  resetBtn.addEventListener("click", () => {
+    form.reset();
+    resetEditMode();
   });
 
-  // Render inicial (para que muestre el mensaje "No hay productos" al cargar)
-  renderProducts();
+  // Eliminar producto (con confirmación y animación)
+  window.deleteProduct = (id) => {
+    const confirmDelete = confirm("¿Estás seguro de que deseas eliminar este producto?");
+    if (!confirmDelete) return;
 
-  console.log("Product CRUD inicializado correctamente.");
+    const row = [...tableBody.children].find((tr) => tr.children[0].textContent == id);
+    if (row) {
+      row.style.transition = "opacity 0.4s";
+      row.style.opacity = "0";
+    }
+
+    setTimeout(() => {
+      products = products.filter((p) => p.id !== id);
+      renderProducts();
+      alert("Producto eliminado correctamente.");
+    }, 400);
+  };
+
+  renderProducts();
 });
