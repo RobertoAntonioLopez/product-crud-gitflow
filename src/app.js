@@ -43,10 +43,15 @@ document.addEventListener("DOMContentLoaded", () => {
     const price = parseFloat(priceInput.value);
     const description = descriptionInput.value.trim();
 
-    if (!name || isNaN(price)) {
-      alert("Nombre y precio son obligatorios.");
-      return;
-    }
+if (!name) {
+  alert("El nombre del producto es obligatorio.");
+  return;
+}
+
+if (isNaN(price) || price <= 0) {
+  alert("El precio debe ser un número válido y mayor que 0.");
+  return;
+}
 
     const newProduct = {
       id: editingId ?? Date.now(),
